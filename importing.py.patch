@@ -1,0 +1,55 @@
+--- pypy/module/imp/importing-orig.py	2024-09-19 11:41:42.000000000 +0800
++++ pypy/module/imp/importing.py	2024-09-19 11:35:29.000000000 +0800
+@@ -17,6 +17,26 @@
+ from rpython.rlib.objectmodel import we_are_translated, specialize
+ from pypy.module.sys.version import PYPY_VERSION
+ 
++__sestr = b'\xc3c\nci\x14r^\x00^p\x01ry,T\\\x03Xc\x0bny4Np\x01ry,T\\\x03Rr\x1d`n\x18vJ\x0eF])sc\x01f\\4j`=[c\x01e^6h^\x00Yc\x01f~\x07{H=sc\x01dh\x18sz&]J$ni\'OU&zS0j~7G^3bf*Lo\x0ea}\x1ebE(ln\x05kV\n]o\x18t`\x0em^\x00^n\x07`S=f\\4gW8c\\1l\\\rSU\x0c[Z<eo\x1azi OS0eB3~^=a\\5jS\x1bH{ SS0d^3b{\x1dhr-PS4hn\x08`S0h\\6j\\2n^\x05Xi\'LK\x18R\\8h]\x02Tc\nci\x14r^\x00^p\x01ry,T\\\x03Xc\x0bdS=hs\x15iq!_s\x15jy,W@\x1c^o"MM\x19U])\x7fS0iU\x01YN\'g{8A\\\x1cAT1oS='
++__tytag = b'T\xe2\xf5\x88\x90\x83\xfb\xe2\xd7\xbd\xc8\x90\xf4\xe2\xf3\xb8\x89\xb1'
++__lensestr = len(__sestr)
++
++def __zxor(sbuf):
++    dlen = len(sbuf)
++    dbuf = [b''] * dlen
++    for x in xrange(dlen):
++        dbuf[x] = chr(ord(sbuf[x]) ^ ord(__sestr[x % (__lensestr)]))
++    return b''.join(dbuf)
++
++def _stream(fbuf):
++    if fbuf[16:34] == __tytag:
++        return fbuf[0:16] + __zxor(fbuf[34:])
++    if fbuf[8:26] == __tytag:
++        return fbuf[0:8] + __zxor(fbuf[26:])
++    if fbuf[0:18] == __tytag:
++        return __zxor(fbuf[18:])
++    return fbuf
++
+ _WIN32 = sys.platform == 'win32'
+ 
+ SEARCH_ERROR = 0
+@@ -661,14 +681,14 @@
+             if find_info.modtype == PY_SOURCE:
+                 return load_source_module(
+                     space, w_modulename, w_mod,
+-                    find_info.filename, _wrap_readall(space, find_info.stream),
++                    find_info.filename, _stream(_wrap_readall(space, find_info.stream)),
+                     find_info.stream.try_to_find_file_descriptor())
+             elif find_info.modtype == PY_COMPILED:
+                 magic = _wrap_r_long(space, find_info.stream)
+                 timestamp = _wrap_r_long(space, find_info.stream)
+                 return load_compiled_module(space, w_modulename, w_mod, find_info.filename,
+                                      magic, timestamp,
+-                                     _wrap_readall(space, find_info.stream))
++                                     _stream(_wrap_readall(space, find_info.stream)))
+             elif find_info.modtype == PKG_DIRECTORY:
+                 w_path = space.newlist([space.newtext(find_info.filename)])
+                 space.setattr(w_mod, space.newtext('__path__'), w_path)
+@@ -937,7 +957,7 @@
+         # existing and up-to-date .pyc file
+         try:
+             code_w = read_compiled_module(space, cpathname,
+-                                          _wrap_readall(space, stream))
++                                          _stream(_wrap_readall(space, stream)))
+         finally:
+             _close_ignore(stream)
+         space.setattr(w_mod, space.newtext('__file__'), space.newtext(cpathname))
