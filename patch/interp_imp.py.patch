@@ -1,0 +1,20 @@
+--- pypy/module/imp/interp_imp-orig.py	2024-09-19 11:41:47.000000000 +0800
++++ pypy/module/imp/interp_imp.py	2024-09-19 11:37:53.000000000 +0800
+@@ -104,7 +104,7 @@
+ 
+     w_mod = importing.load_source_module(
+         space, w_modulename, w_mod,
+-        filename, importing._wrap_readall(space, stream),
++        filename, importing._stream(importing._wrap_readall(space, stream)),
+         stream.try_to_find_file_descriptor())
+     if space.is_none(w_file):
+         importing._wrap_close(space, stream)
+@@ -121,7 +121,7 @@
+ 
+     w_mod = importing.load_compiled_module(
+         space, w_modulename, w_module, filename, magic, timestamp,
+-        importing._wrap_readall(space, stream),
++        importing._stream(importing._wrap_readall(space, stream)),
+         check_afterwards=check_afterwards)
+     if space.is_none(w_file):
+         importing._wrap_close(space, stream)
